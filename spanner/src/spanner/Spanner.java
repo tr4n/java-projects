@@ -21,8 +21,6 @@ public class Spanner {
         Utils.initializeRandomMap(map);
         specialPosition = map.getSpecialPosition();
 
-     //   map.printMap("after-init");
-
 
 
     }
@@ -75,7 +73,6 @@ public class Spanner {
                 }
             }
         }
-     //   map.printMap("after-fill-color");
 
         executeSpeicalPosition(Utils.CREATE_FLOW);
         for (int line = 0; line < height; line++) {
@@ -88,22 +85,13 @@ public class Spanner {
 
             }
         }
-        /*
-        for(Flow flow: flowList){
-            System.out.println(flow);
-        }
-*/
-        System.out.println();
+
         List<Flow> targetFlowList = Flow.getTargetFlowList(flowList, map.getNumberFlows(flowList.size()));
-        /*
-        for(Flow flow: targetFlowList){
-            System.out.println(flow);
-        }
-*/
+
         Utils.printTargetMap(map, targetFlowList);
 
         try {
-            Utils.writeToFile(map, targetFlowList, "output/output.txt");
+            Utils.writeToFile(map, targetFlowList, "output/generate.txt");
         } catch (IOException e) {
             e.printStackTrace();
         }

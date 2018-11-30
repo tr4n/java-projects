@@ -64,7 +64,7 @@ public class Flow {
         targetFlowList.addAll(flowList);
         int currentSize = flowList.size();
 
-        System.out.println("current " + currentSize + " target: " + targetSize);
+
 
         while (currentSize < targetSize) {
             tempList.clear();
