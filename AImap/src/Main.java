@@ -38,16 +38,26 @@ public class Main {
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 if (map[i][j] == -1) {
-                    int k = random.nextInt(orderRandom.length);
-                    for (int index = 0; index < 4; index++) {
-                        int dir = (int) (orderRandom[k].charAt(index) - '0');
-                        //System.out.println("k = " + orderRandom[k] + " dir = " + dir );
-                        int checkX = i + directX[dir], checkY = j + directY[dir];
-                        if (!isInside(checkX, checkY, width, height)) continue;
-                        if (map[checkX][checkY] != -1) continue;
-                        map[i][j] = map[checkX][checkY] = count++;
-                        break;
+                    if(i == height -1 && j > 1 && map[i][j-1] == -1){
+
+                            map[i][j] = map[i][j-1] = count ++;
+
+                    }else if(j == width -1 && i > 1 && map[i-1][j] == -1){
+                        map[i][j] = map[i-1][j] = count++;
+                    }else{
+                        int k = random.nextInt(orderRandom.length);
+                        for (int index = 0; index < 4; index++) {
+                            int dir = (int) (orderRandom[k].charAt(index) - '0');
+                            //System.out.println("k = " + orderRandom[k] + " dir = " + dir );
+                            int checkX = i + directX[dir], checkY = j + directY[dir];
+                            if (!isInside(checkX, checkY, width, height)) continue;
+                            if (map[checkX][checkY] != -1) continue;
+                            map[i][j] = map[checkX][checkY] = count++;
+                            break;
+                        }
                     }
+
+
 
 
                 }
@@ -84,22 +94,22 @@ public class Main {
         }
     }
 
-    public static Flow createFlowList(int x, int y){
-        Flow flow =  new Flow();
+    public static Flow createFlowList(int x, int y) {
+        Flow flow = new Flow();
 
         int X = x, Y = y;
 
         boolean conditionBreak = true;
-        while(conditionBreak){
+        while (conditionBreak) {
 
             int numberFlow = map[X][Y];
             map[X][Y] = 1;
             flow.add(X * width + Y);
             conditionBreak = false;
-            for(int dir = 0 ; dir < 4 ; dir ++){
+            for (int dir = 0; dir < 4; dir++) {
                 int nextX = X + directX[dir], nextY = Y + directY[dir];
-                if(isInside(nextX, nextY, width, height)){
-                    if(map[nextX][nextY] == numberFlow - 1){
+                if (isInside(nextX, nextY, width, height)) {
+                    if (map[nextX][nextY] == numberFlow - 1) {
                         X = nextX;
                         Y = nextY;
                         conditionBreak = true;
@@ -113,6 +123,18 @@ public class Main {
 
 
         return flow;
+    }
+
+    private static Pair<Integer, Integer> getOddPosition(){
+        for(int i = 0 ;i < height ;i ++){
+            for(int j = 0 ;j < width ; j ++){
+                if(map[i][j] == -1){
+                    return new Pair<>(i, j);
+                }
+            }
+        }
+
+        return null;
     }
 
 
@@ -129,6 +151,38 @@ public class Main {
             System.out.println();
         }
         int flow = -2;
+
+        Pair<Integer, Integer> oddPosition = getOddPosition();
+        if(oddPosition != null){
+            int first = oddPosition.getKey();
+            int second = oddPosition.getValue();
+            number = 0;
+            int index = random.nextInt(orderRandom.length);
+            for (int i = 0; i < 4; i++) {
+                int dir = orderRandom[index].charAt(i) - '0';
+                int nextX = first + directX[dir], nextY = second + directY[dir];
+                if (isInside(nextX, nextY, width, height)) {
+                    if (map[nextX][nextY] >= 0) {
+                        map[first][second] = flow*100 - number ++;
+                      //  map[nextX][nextY] = flow*100 - number ++;
+                        fillColor(nextX, nextY, flow, true);
+
+                        break;
+
+                    }
+                }
+
+            }
+            flow --;
+
+            System.out.println(oddPosition.getKey() + " " + oddPosition.getValue());
+        }
+
+
+
+
+
+
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 if (map[i][j] > -2) {
@@ -149,27 +203,60 @@ public class Main {
 
         System.out.println();
 
-        for(int i = 0 ;i < height ;i ++){
-            for(int j = 0 ;j < width;j ++){
-                if(map[i][j] < 0){
-                    Flow tmpflow = createFlowList(i,j);
-                    if(tmpflow == null || tmpflow.getArrayList().size() < 1) continue;
+        if(oddPosition != null){
+            Flow tmpflow = createFlowList(oddPosition.getKey(), oddPosition.getValue());
+            if (tmpflow != null && tmpflow.getArrayList().size() > 0)
+                flowList.add(tmpflow);
+        }
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                if (map[i][j] < 0) {
+                    Flow tmpflow = createFlowList(i, j);
+                    if (tmpflow == null || tmpflow.getArrayList().size() < 1) continue;
                     flowList.add(tmpflow);
                 }
 
             }
         }
 
-      //  List<Flow> dividedFlowList = Flow.getNewFlowList(flowList, width);
-        for(Flow flow1 : flowList){
+
+        for (Flow flow1 : flowList) {
             System.out.println(flow1);
         }
-/*
+
+        List<Flow> dividedFlowList = Flow.getNewFlowList(flowList, width, height);
         System.out.println();
         for(Flow flow1 : dividedFlowList){
             System.out.println(flow1);
         }
-*/
+
+        System.out.println();
+        for(int i = 0 ;i < height ;i ++){
+            for(int j  = 0 ;j < width ;j ++){
+                map[i][j] = 0;
+            }
+        }
+        int count = 0;
+        for(Flow flow1 : dividedFlowList){
+            int first = flow1.getHead();
+            int second = flow1.getTail();
+            ++count;
+            map[first/width][first%width] = map[second/width][second%width] = count;
+
+        }
+
+        for(int i = 0 ;i < height ;i ++){
+            for(int j = 0 ;j < width; j ++){
+                if(map[i][j] == 0){
+                    System.out.format("%5s", "-");
+                }else{
+                    System.out.format("%5d", map[i][j]);
+                }
+
+            }
+            System.out.println();
+        }
+
     }
 }
 
