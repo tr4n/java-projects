@@ -1,2 +1,3 @@
 # TECHKIDS
-TECHKIDS
+Techkids test
+Non - OOP
